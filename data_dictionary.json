@@ -1,0 +1,97 @@
+{
+  "Merchant": {
+    "merchant_id": "TEXT PK, MER-#######",
+    "merchant_name": "TEXT required",
+    "country": "IN/US/GB/DE",
+    "default_currency": "INR/USD/EUR/GBP",
+    "status": "ACTIVE/SUSPENDED",
+    "created_at": "ISO date"
+  },
+  "PaymentOrder": {
+    "payment_order_id": "TEXT PK, PAY-2026-########",
+    "merchant_id": "FK Merchant",
+    "customer_reference": "unique TEXT",
+    "amount": "DECIMAL, major currency units, >0",
+    "currency": "ISO-like currency code",
+    "status": "CAPTURED/FAILED/PENDING",
+    "created_at": "ISO datetime",
+    "updated_at": "ISO datetime"
+  },
+  "PaymentAttempt": {
+    "payment_attempt_id": "TEXT PK, ATT-<payment-id>-##",
+    "payment_order_id": "FK PaymentOrder",
+    "attempt_number": "positive integer",
+    "processor": "processor enum",
+    "status": "CAPTURED/FAILED/PENDING",
+    "amount": "DECIMAL",
+    "currency": "currency code",
+    "created_at": "ISO datetime",
+    "updated_at": "ISO datetime"
+  },
+  "ProcessorEvent": {
+    "processor_event_id": "TEXT PK",
+    "payment_attempt_id": "FK PaymentAttempt",
+    "payment_order_id": "FK PaymentOrder",
+    "event_type": "CAPTURE/PAYMENT_FAILED/PAYMENT_PENDING/REFUND",
+    "event_status": "event status",
+    "amount": "DECIMAL",
+    "currency": "currency code",
+    "event_time": "ISO datetime",
+    "idempotency_key": "TEXT; duplicate values deliberately labelled",
+    "issue_type": "NONE or anomaly label"
+  },
+  "SettlementBatch": {
+    "settlement_batch_id": "TEXT PK, SET-2026-######",
+    "processor": "TEXT",
+    "currency": "currency code",
+    "gross_amount/refund_amount/fee_amount/net_amount": "DECIMAL major units",
+    "status": "SETTLED",
+    "created_at/settlement_date": "ISO datetime"
+  },
+  "SettlementLine": {
+    "settlement_line_id": "TEXT PK, STL-<batch-id>-###",
+    "settlement_batch_id": "FK SettlementBatch",
+    "payment_order_id": "FK PaymentOrder",
+    "payment_attempt_id": "FK PaymentAttempt",
+    "gross_amount/refund_amount/fee_amount/net_amount": "DECIMAL",
+    "currency": "currency code",
+    "issue_type": "NONE or anomaly label"
+  },
+  "BankStatementLine": {
+    "bank_statement_line_id": "TEXT PK, BANK-2026-######",
+    "bank_reference": "batch reference or external ref",
+    "amount": "DECIMAL",
+    "currency": "currency code",
+    "transaction_date": "ISO datetime",
+    "description": "TEXT",
+    "issue_type": "NONE or anomaly label"
+  },
+  "ReconciliationMatch": {
+    "reconciliation_match_id": "TEXT PK, REC-2026-######",
+    "settlement_batch_id": "FK SettlementBatch",
+    "bank_statement_line_id": "FK BankStatementLine",
+    "match_status": "MATCHED",
+    "amount_difference": "DECIMAL",
+    "match_method": "TEXT",
+    "matched_at": "ISO datetime"
+  },
+  "Exception": {
+    "exception_id": "TEXT PK",
+    "settlement_batch_id": "optional FK SettlementBatch",
+    "bank_statement_line_id": "optional FK BankStatementLine",
+    "exception_type": "enum",
+    "severity": "HIGH/MEDIUM/LOW",
+    "description": "TEXT",
+    "status": "OPEN/RESOLVED",
+    "created_at": "ISO datetime"
+  },
+  "Resolution": {
+    "resolution_id": "TEXT PK",
+    "exception_id": "FK Exception",
+    "resolved_by": "TEXT",
+    "resolution_action": "TEXT",
+    "resolution_notes": "TEXT",
+    "resolved_at": "ISO datetime",
+    "outcome": "TEXT"
+  }
+}
