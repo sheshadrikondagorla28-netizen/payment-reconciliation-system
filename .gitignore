@@ -7,3 +7,5 @@ data/*.csv
 data/*.db
 data/*.json
 !data/.gitkeep
+
+data/*.sql
